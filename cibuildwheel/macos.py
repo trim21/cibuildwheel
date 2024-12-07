@@ -139,7 +139,7 @@ def get_python_configurations(
     return python_configurations
 
 
-def install_cpython(tmp: Path, version: str, url: str, free_threading: bool) -> Path:
+def install_cpython(_tmp: Path, version: str, url: str, free_threading: bool) -> Path:
     ft = "T" if free_threading else ""
     installation_path = Path(f"/Library/Frameworks/Python{ft}.framework/Versions/{version}")
     with FileLock(CIBW_CACHE_PATH / f"cpython{version}.lock"):
