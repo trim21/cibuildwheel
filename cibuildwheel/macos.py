@@ -161,10 +161,10 @@ def install_cpython(tmp: Path, version: str, url: str, free_threading: bool) -> 
                     """
                 )
                 raise errors.FatalError(msg)
-            pkg_path = tmp / "Python.pkg"
-            # download the pkg
-            download(url, pkg_path)
-            # install
+            python_filename = url.split('/')[-1]
+            pkg_path = CIBW_CACHE_PATH.joinpath('python', python_filename)
+            if not pkg_path.exists():
+                download(url, pkg_path)
             args = []
             if version.startswith("3.13"):
                 # Python 3.13 is the first version to have a free-threading option
