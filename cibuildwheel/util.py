@@ -353,7 +353,29 @@ class Unbuffered:
         return getattr(self.stream, attr)
 
 
+# debug function to show download speed, will be removed later
+def format_speed(num: float) -> str:
+    base = 1024
+    unit = ["B", "KiB", "MiB", "GiB", "TiB", "PiB"]
+
+    x = "B"
+
+    for x in unit:
+        if -base < num < base:
+            return f"{num:3.2f} {x}/s"
+        num = num / base
+
+    return f"{num:3.2f} {x}/s"
+
+
 def download(url: str, dest: Path) -> None:
+    start = time.monotonic()
+    total_size = _download(url, dest)
+    end = time.monotonic()
+    print(format_speed(total_size / (end - start)))
+
+
+def _download(url: str, dest: Path) -> int:
     print(f"+ Download {url} to {dest}")
     dest_dir = dest.parent
     if not dest_dir.exists():
@@ -367,13 +389,16 @@ def download(url: str, dest: Path) -> None:
     for i in range(repeat_num):
         try:
             with urllib.request.urlopen(url, context=context) as response:
-                dest.write_bytes(response.read())
-                return
+                data = response.read()
+                dest.write_bytes(data)
+                return len(data)
 
         except OSError:
             if i == repeat_num - 1:
                 raise
             sleep(3)
+
+    raise Exception("failed to download after max attempt")
 
 
 def extract_zip(zip_src: Path, dest: Path) -> None:
